@@ -242,7 +242,8 @@ def house_price_pipeline(X, y, ratio_num_idx, ratio_den_idx, cat_labels=None, tr
     X_feat = assemble_feature_matrix(X_clean, ratio_num_idx, ratio_den_idx, cat_labels=cat_labels)
     splits = make_train_val_test(X_feat, y, train_ratio, val_ratio, seed) 
     std_splits, _, _ = standardize_and_add_bias(splits) 
-    theta = ols_fit(std_splits['X_train'], std_splits['y_train'])
+    theta, *_ = np.linalg.lstsq(std_splits['X_train'], std_splits['y_train'], rcond=None) 
+    # The previous implemented method passed all test but here rises a singularity error.
     y_val_pred = ols_predict(std_splits['X_val'],theta)
     y_test_pred = ols_predict(std_splits['X_test'],theta)
     val_metrics = evaluate_predictions(std_splits['y_val'], y_val_pred)
